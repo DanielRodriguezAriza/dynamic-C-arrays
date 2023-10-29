@@ -54,7 +54,7 @@ int dynamic_array_has_to_reallocate(void *arr);
 #define dynamic_array_push_internal(arr, elem) ((arr)->data[dynamic_array_get_length(arr)] = (elem), (arr)->length += sizeof(((arr)->data)[0]),  0)
 
 #define dynamic_array_push_element(arr, elem)\
-(dynamic_array_has_to_reallocate((arr)) ? (dynamic_array_reallocate((arr), (arr)->capacity * 2) == 0 ? dynamic_array_push_internal((arr), (elem)) : 1 ) : dynamic_array_push_internal((arr), (elem)))
+(dynamic_array_has_to_reallocate((arr)) ? (dynamic_array_reallocate((arr), (arr)->capacity == 0? 8 : (arr)->capacity * 2) == 0 ? dynamic_array_push_internal((arr), (elem)) : 1 ) : dynamic_array_push_internal((arr), (elem)))
 
 
 #define dynamic_array_get_length(arr) (((arr)->length) / sizeof(((arr)->data)[0]))
@@ -98,7 +98,7 @@ int dynamic_array_allocate_bytes(void *arr, size_t bytes)
 
 void dynamic_array_deallocate(void *arr)
 {
-	free(((d_arr_ptr)(arr))->data);
+	free((((d_arr_ptr)(arr))->data));
 	dynamic_array_set_info(arr,NULL,0,0);
 }
 
@@ -120,7 +120,7 @@ int dynamic_array_reallocate(void *arr, size_t new_cap)
 
 int dynamic_array_has_to_reallocate(void *arr)
 {
-	return (((d_arr_ptr)(arr))->length >= ((d_arr_ptr)(arr))->capacity) || (((d_arr_ptr)(arr))->capacity == 0);
+	return (((d_arr_ptr)(arr))->length >= ((d_arr_ptr)(arr))->capacity) || (((d_arr_ptr)(arr))->capacity == 0) || (((d_arr_ptr)(arr))->data == NULL);
 }
 
 #endif /* DRA_DYNAMIC_ARRAY_IMPL */
