@@ -5,9 +5,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifndef DRA_EXPAND
+	#define DRA_EXPAND(x) x
+#endif
+
 #define dynamic_array(type) struct {type *data; size_t length, capacity;}
 
-
+typedef dynamic_array(char) dynamic_array;
 typedef dynamic_array(char) d_arr;
 typedef dynamic_array(char) *d_arr_ptr;
 
@@ -73,7 +77,19 @@ int dynamic_array_has_to_reallocate(void *arr);
 #define dynamic_array_get_data_pointer(arr) ((arr)->data)
 #define dynamic_array_get_data_pointer_by_type(arr, type) ((type*)((arr)->data))
 
-
+#ifdef DRA_LOOPS_ARGS_H
+	
+	#define DRA_COMPOSE_PUSH_PAIR(y) (arrptr, y)
+	
+	#define dynamic_array_push_element_pair(pair) dynamic_array_push_element pair
+	#define dynamic_array_push_elements_by_type(arr, type, ...)\
+	do\
+	{\
+		dynamic_array(type) *arrptr = (void*)(arr);\
+		FOR_EACH_DO(dynamic_array_push_element_pair, FOR_EACH_ENUMERATE(DRA_COMPOSE_PUSH_PAIR, __VA_ARGS__));\
+	}while(0)
+	
+#endif /* DRA_LOOPS_ARGS_H */
 
 #ifdef DRA_DYNAMIC_ARRAY_IMPL
 
